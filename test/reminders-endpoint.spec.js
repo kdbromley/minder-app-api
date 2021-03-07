@@ -27,7 +27,6 @@ describe('Reminders endpoints', () => {
 
         context('given reminders in table', () => {
             const testReminders = makeRemindersArray();
-            console.log(testReminders)
             const testUsers = makeUsersArray();
 
             beforeEach('insert reminders into table', () => {
@@ -47,6 +46,40 @@ describe('Reminders endpoints', () => {
                     .expect(200, testReminders)
             });
         });
+    });
+
+    describe('GET /reminders/:reminderId', () => {
+        context('given no reminders in db', () => {
+            it('responds with 404', () => {
+                const reminderId = 1234;
+                return supertest(app)
+                    .get(`/api/reminders/${reminderId}`)
+                    .expect(404, { error: { message: `Reminder does not exist` } })
+            })
+        })
+        
+        context('given reminders in the db', () => {
+            const testReminders = makeRemindersArray();
+            const testUsers = makeUsersArray();
+
+            beforeEach('insert reminders into table', () => {
+                return db
+                    .into('users')
+                    .insert(testUsers)
+                    .then(() => {
+                        return db
+                            .into('reminders')
+                            .insert(testReminders)
+                    })
+            })
+
+            it('returns 200 and specified article', () => {
+                const reminderId = 2;
+                return supertest(app)
+                    .get(`/api/reminders/${reminderId}`)
+                    .expect(200)
+            })
+        })
     })
 
 })

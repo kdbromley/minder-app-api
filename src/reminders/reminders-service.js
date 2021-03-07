@@ -4,8 +4,12 @@ const RemindersService = {
             .select('*')
             .from('reminders')
     },
-    getReminderById(knex) {
-        //return reminder with matching id
+    getReminderById(knex, reminderId) {
+        return knex
+            .select('*')
+            .from('reminders')
+            .where('id', reminderId)
+            .first()
     },
     insertReminder(knex) {
         //add new reminder to table and return
