@@ -83,7 +83,7 @@ describe('Reminders endpoints', () => {
         })
     })
 
-    describe('POST /api/reminders', () => {
+    describe.only('POST /api/reminders', () => {
         const testUsers = makeUsersArray();
         beforeEach('create user', () => {
             return db
@@ -111,6 +111,28 @@ describe('Reminders endpoints', () => {
                     expect(res.body).to.have.property('id')
                     expect(res.headers.location).to.eql(`/api/reminders/${res.body.id}`)
                 })
+        })
+
+        const requiredFields= ['title', 'due_date', 'completed', 'user_id']
+
+        requiredFields.forEach(field => { 
+            const newReminder = {
+                title: 'Test new reminder',
+                due_date: '2021-03-10T10:00:00.000Z',
+                completed: true,
+                user_id: 1,
+            }
+
+            it(`when ${field} missing, returns 400 and error`, () => {
+                delete newReminder[field]
+
+                return supertest(app)
+                    .post('/api/reminders')
+                    .send(newReminder)
+                    .expect(400, {
+                        error: { message: `Missing '${field}' in request body` }
+                    })
+            })
         })
     })
 
