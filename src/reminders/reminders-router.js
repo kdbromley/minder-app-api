@@ -17,6 +17,21 @@ remindersRouter
         })
         .catch(next)
     })
+    .post(jsonParser, (req, res, next) => {
+        const { title, due_date, reminder_notes, completed, user_id } =  req.body;
+        const newReminder = {  title, due_date, reminder_notes, completed, user_id };
+        RemindersService.insertReminder(
+            req.app.get('db'),
+            newReminder
+        )
+        .then(reminder => { 
+            res
+             .status(201)
+             .location(path.posix.join(req.originalUrl, `/${reminder.id}`))
+             .json(reminder)
+            })
+        .catch(next)
+    })
 
 remindersRouter
     .route('/:reminderId')

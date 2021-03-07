@@ -11,8 +11,14 @@ const RemindersService = {
             .where('id', reminderId)
             .first()
     },
-    insertReminder(knex) {
-        //add new reminder to table and return
+    insertReminder(knex, newReminder) {
+        return knex
+            .insert(newReminder)
+            .into('reminders')
+            .returning('*')
+            .then(rows => {
+                return rows[0]
+            })
     },
     deleteReminder(knex) {
         //remove reminder with specified id

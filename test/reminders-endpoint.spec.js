@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const knex = require('knex');
 const supertest = require('supertest');
 const app = require('../src/app');
@@ -79,6 +80,37 @@ describe('Reminders endpoints', () => {
                     .get(`/api/reminders/${reminderId}`)
                     .expect(200)
             })
+        })
+    })
+
+    describe('POST /api/reminders', () => {
+        const testUsers = makeUsersArray();
+        beforeEach('create user', () => {
+            return db
+                .into('users')
+                .insert(testUsers)
+        })
+        it('creates new reminder, returns 201 and new article', () => {
+            const newReminder = {
+                title: 'New reminder',
+                due_date: '2021-03-10T10:00:00.000Z',
+                reminder_notes: '',
+                completed: false,
+                user_id: 1
+            }
+            return supertest(app)
+                .post('/api/reminders')
+                .send(newReminder)
+                .expect(201)
+                .expect(res => {
+                    expect(res.body.title).to.eql(newReminder.title)
+                    expect(res.body.due_date).to.eql(newReminder.due_date)
+                    expect(res.body.reminder_notes).to.eql(newReminder.reminder_notes)
+                    expect(res.body.completed).to.eql(newReminder.completed)
+                    expect(res.body.user_id).to.eql(newReminder.user_id)
+                    expect(res.body).to.have.property('id')
+                    expect(res.headers.location).to.eql(`/api/reminders/${res.body.id}`)
+                })
         })
     })
 
