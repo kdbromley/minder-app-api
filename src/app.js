@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
+const remindersRouter = require('./reminders/reminders-router')
 
 
 const app = express();
@@ -16,7 +17,9 @@ app.use(morgan(morganSetting));
 app.use(helmet());
 app.use(cors());
 
-app.get('/api/*', (req, res) => {
+app.use('/api/reminders', remindersRouter);
+
+app.get('/api', (req, res) => {
     res.send('Hello, world!')
 });
 
