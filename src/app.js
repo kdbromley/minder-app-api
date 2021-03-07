@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
-const remindersRouter = require('./reminders/reminders-router')
+const remindersRouter = require('./reminders/reminders-router');
 
 
 const app = express();

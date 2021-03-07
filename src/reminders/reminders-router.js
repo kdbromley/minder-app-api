@@ -9,7 +9,13 @@ const jsonParser = express.json();
 remindersRouter
     .route('/')
     .get((req, res, next) => {
-        res.status(200).end()
+        RemindersService.getAllReminders(
+            req.app.get('db')
+        )
+        .then(reminders => {
+            res.json(reminders)
+        })
+        .catch(next)
     })
 
 
