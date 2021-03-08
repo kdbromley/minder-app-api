@@ -20,8 +20,10 @@ const RemindersService = {
                 return rows[0]
             })
     },
-    deleteReminder(knex) {
-        //remove reminder with specified id
+    deleteReminder(knex, reminderId) {
+        return knex('reminders')
+            .where('id', reminderId)
+            .delete()
     },
     udpateReminder(knex) {
         //edit and update reminder with specified id

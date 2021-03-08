@@ -46,7 +46,7 @@ remindersRouter
 
 remindersRouter
     .route('/:reminderId')
-    .get((req, res, next)=> {
+    .all((req, res, next) => {
         RemindersService.getReminderById(
             req.app.get('db'),
             req.params.reminderId
@@ -57,7 +57,23 @@ remindersRouter
                     error: { message: `Reminder does not exist`}
                 })
             }
-            res.json(reminder)
+            res.reminder = reminder;
+            next();
+        })
+        .catch(next)
+    })
+    .get((req, res, next) => {
+        res
+         .status(200)
+         .json(res.reminder)
+    })
+    .delete((req, res, next) => {
+        RemindersService.deleteReminder(
+            req.app.get('db'),
+            req.params.reminderId
+        )
+        .then(() => {
+            res.status(204).end()
         })
         .catch(next)
     })
