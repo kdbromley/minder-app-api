@@ -136,7 +136,7 @@ describe('Reminders endpoints', () => {
         })
     })
 
-    describe.only('DELETE /api/reminders/:reminderId', () => {
+    describe('DELETE /api/reminders/:reminderId', () => {
         context('given there are no reminders', () => {
             it('responds with 404 and error message', () => {
                 const reminderId = 1234;
@@ -168,6 +168,94 @@ describe('Reminders endpoints', () => {
                 return supertest(app)
                     .delete(`/api/reminders/${reminderId}`)
                     .expect(204)
+            })
+        })
+    })
+
+    describe('PATCH /api/reminders/:reminderId', () => {
+        context('given no reminders', () => {
+            it('responds with 404 and error message', () => {
+                const reminderId = 1234;
+                return supertest(app)
+                    .patch(`/api/reminders/${reminderId}`)
+                    .expect(404, {
+                        error: { message: `Reminder does not exist`}
+                    })
+            })
+        })
+
+        context('given reminders in db', () => {
+            const testReminders = makeRemindersArray();
+            const testUsers = makeUsersArray();
+
+            beforeEach('insert reminders into table', () => {
+                return db
+                    .into('users')
+                    .insert(testUsers)
+                    .then(() => {
+                        return db
+                            .into('reminders')
+                            .insert(testReminders)
+                    })
+            })
+
+            it('given all fields, responds with 204 and updates reminder', () => {
+                const reminderId = 1;
+                const updatedReminder = {
+                    title: 'Updated title',
+                    due_date: '2022-05-31T22:30:00.000Z',
+                    reminder_notes: 'updated reminder notes',
+                    completed: false,
+                    user_id: 1
+                }
+                const expectedReminder = {
+                    ...testReminders[reminderId - 1],
+                    ...updatedReminder
+                }
+
+                return supertest(app)
+                    .patch(`/api/reminders/${reminderId}`)
+                    .send(updatedReminder)
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                          .get(`/api/reminders/${reminderId}`)
+                          .expect(expectedReminder)
+                    ) 
+            })
+            it('given some fields, responds with 204 and updates reminder', () => {
+                const reminderId = 1;
+                const updatedReminder = {
+                    title: 'Updated title',
+                    completed: false,
+                }
+                const expectedReminder = {
+                    ...testReminders[reminderId - 1],
+                    ...updatedReminder
+                }
+
+                return supertest(app)
+                    .patch(`/api/reminders/${reminderId}`)
+                    .send({
+                        ...updatedReminder,
+                        falseField: `Should not be in Get response`
+                    })
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                        .get(`/api/reminders/${reminderId}`)
+                        .expect(expectedReminder)
+                    )
+            })
+            it('given no required fields, responds with 400', () => {
+                const reminderId = 1;
+
+                return supertest(app)
+                    .patch(`/api/reminders/${reminderId}`)
+                    .send({ falseField: 'Foo' })
+                    .expect(400, {
+                        error: { message: 'Body must contain one of: title, due_date, completed' }
+                    })
             })
         })
     })
