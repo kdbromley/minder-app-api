@@ -83,7 +83,7 @@ describe('Reminders endpoints', () => {
         })
     })
 
-    describe.only('POST /api/reminders', () => {
+    describe('POST /api/reminders', () => {
         const testUsers = makeUsersArray();
         beforeEach('create user', () => {
             return db
@@ -132,6 +132,42 @@ describe('Reminders endpoints', () => {
                     .expect(400, {
                         error: { message: `Missing '${field}' in request body` }
                     })
+            })
+        })
+    })
+
+    describe.only('DELETE /api/reminders/:reminderId', () => {
+        context('given there are no reminders', () => {
+            it('responds with 404 and error message', () => {
+                const reminderId = 1234;
+                return supertest(app)
+                    .delete(`/api/reminders/${reminderId}`)
+                    .expect(404, {
+                        error: { message: `Reminder does not exist` }
+                    })
+            })
+        })
+
+        context('given there are reminders in db', () => {
+            const testReminders = makeRemindersArray();
+            const testUsers = makeUsersArray();
+
+            beforeEach('insert reminders into table', () => {
+                return db
+                    .into('users')
+                    .insert(testUsers)
+                    .then(() => {
+                        return db
+                            .into('reminders')
+                            .insert(testReminders)
+                    })
+            })
+
+            it('responds with 204 and no content', () => {
+                const reminderId = 2;
+                return supertest(app)
+                    .delete(`/api/reminders/${reminderId}`)
+                    .expect(204)
             })
         })
     })
