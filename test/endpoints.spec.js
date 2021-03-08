@@ -74,7 +74,7 @@ describe('Reminders endpoints', () => {
                     })
             })
 
-            it('returns 200 and specified article', () => {
+            it('returns 200 and specified reminder', () => {
                 const reminderId = 2;
                 return supertest(app)
                     .get(`/api/reminders/${reminderId}`)
@@ -90,7 +90,7 @@ describe('Reminders endpoints', () => {
                 .into('users')
                 .insert(testUsers)
         })
-        it('creates new reminder, returns 201 and new article', () => {
+        it('creates new reminder, returns 201 and new reminder', () => {
             const newReminder = {
                 title: 'New reminder',
                 due_date: '2021-03-10T10:00:00.000Z',
@@ -257,6 +257,69 @@ describe('Reminders endpoints', () => {
                         error: { message: 'Body must contain one of: title, due_date, completed' }
                     })
             })
+        })
+    })
+
+})
+
+describe.only('users endpoint', () => {
+    let db;
+
+    db = knex({
+        client: 'pg',
+        connection: process.env.TEST_DATABASE_URL,
+    });
+    app.set('db', db);
+
+    after('disconnect from db', () => db.destroy());
+    before('clean table', () => db.raw('TRUNCATE reminders, users RESTART IDENTITY CASCADE'));
+    afterEach('cleanup', () => db.raw('TRUNCATE reminders, users RESTART IDENTITY CASCADE'));
+
+    describe('GET /users', () => {
+        context('no users in db', () => {
+            it('returns 200 and empty array', () => {
+                return supertest(app)
+                    .get('/api/users')
+                    .expect(200, [])
+                })
+        })
+        context('given users in db', () => {
+            const testUsers = makeUsersArray();
+            beforeEach('create user', () => {
+                return db
+                    .into('users')
+                    .insert(testUsers)
+            })
+    
+            it('returns 200 and all users', () => {
+                return supertest(app)
+                    .get('/api/users')
+                    .expect(200, testUsers)
+            })
+        })
+    })
+
+    describe('POST /users', () => {
+        it('creates new user, returns 201 and new user', () => {
+            const newUser = {
+                username: 'dummyuser',
+                password: 'dummypass',
+                email: 'dummyuser-email@host.com',
+                full_name: 'Full Stack'
+            }
+            return supertest(app)
+                .post('/api/users')
+                .send(newUser)
+                .expect(201)
+                /*.expect(res => {
+                    expect(res.body.title).to.eql(newReminder.title)
+                    expect(res.body.due_date).to.eql(newReminder.due_date)
+                    expect(res.body.reminder_notes).to.eql(newReminder.reminder_notes)
+                    expect(res.body.completed).to.eql(newReminder.completed)
+                    expect(res.body.user_id).to.eql(newReminder.user_id)
+                    expect(res.body).to.have.property('id')
+                    expect(res.headers.location).to.eql(`/api/reminders/${res.body.id}`)
+                }) */
         })
     })
 
