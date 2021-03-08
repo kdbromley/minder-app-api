@@ -12,7 +12,13 @@ const UsersService = {
             .first()
     },
     insertUser(knex, newUser) {
-        //
+        return knex
+        .insert(newUser)
+        .into('users')
+        .returning('*')
+        .then(rows => {
+            return rows[0]
+        })
     },
 }
 

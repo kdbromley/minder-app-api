@@ -74,7 +74,7 @@ describe('Reminders endpoints', () => {
                     })
             })
 
-            it('returns 200 and specified article', () => {
+            it('returns 200 and specified reminder', () => {
                 const reminderId = 2;
                 return supertest(app)
                     .get(`/api/reminders/${reminderId}`)
@@ -90,7 +90,7 @@ describe('Reminders endpoints', () => {
                 .into('users')
                 .insert(testUsers)
         })
-        it('creates new reminder, returns 201 and new article', () => {
+        it('creates new reminder, returns 201 and new reminder', () => {
             const newReminder = {
                 title: 'New reminder',
                 due_date: '2021-03-10T10:00:00.000Z',
@@ -296,6 +296,30 @@ describe.only('users endpoint', () => {
                     .get('/api/users')
                     .expect(200, testUsers)
             })
+        })
+    })
+
+    describe('POST /users', () => {
+        it('creates new user, returns 201 and new user', () => {
+            const newUser = {
+                username: 'dummyuser',
+                password: 'dummypass',
+                email: 'dummyuser-email@host.com',
+                full_name: 'Full Stack'
+            }
+            return supertest(app)
+                .post('/api/users')
+                .send(newUser)
+                .expect(201)
+                /*.expect(res => {
+                    expect(res.body.title).to.eql(newReminder.title)
+                    expect(res.body.due_date).to.eql(newReminder.due_date)
+                    expect(res.body.reminder_notes).to.eql(newReminder.reminder_notes)
+                    expect(res.body.completed).to.eql(newReminder.completed)
+                    expect(res.body.user_id).to.eql(newReminder.user_id)
+                    expect(res.body).to.have.property('id')
+                    expect(res.headers.location).to.eql(`/api/reminders/${res.body.id}`)
+                }) */
         })
     })
 

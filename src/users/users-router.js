@@ -15,6 +15,22 @@ usersRouter
         .then(user => res.json(user))
         .catch(next)
     })
+    .post(jsonParser, (req, res, next) => {
+        const { username, password, email, full_name } = req.body;
+        const newUser = { username, password, email, full_name };
+        
+        UsersService.insertUser(
+            req.app.get('db'),
+            newUser
+        )
+        .then(user => {
+            res
+            .status(201)
+            .location(path.posix.join(req.originalUrl, `/${user.id}`))
+            .json(user)
+           })
+       .catch(next)
+    })
 
 
 module.exports = usersRouter
