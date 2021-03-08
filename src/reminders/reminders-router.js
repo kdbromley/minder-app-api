@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const RemindersService = require('./reminders-service');
+const { udpateReminder } = require('./reminders-service');
 // npm i xss -- const xss = require('xss');
 
 const remindersRouter = express.Router();
@@ -76,6 +77,21 @@ remindersRouter
             res.status(204).end()
         })
         .catch(next)
+    })
+    .patch(jsonParser, (req, res, next) => {
+        const { title, due_date, reminder_notes, completed, user_id } = req.body;
+        const updatedReminder = { title, due_date, reminder_notes, completed, user_id }
+        
+        RemindersService.udpateReminder(
+            req.app.get('db'),
+            req.params.reminderId,
+            updatedReminder
+        )
+        .then(reminder => {
+            res
+             .status(204)
+             .end()
+        })
     })
 
 

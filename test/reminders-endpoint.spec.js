@@ -136,7 +136,7 @@ describe('Reminders endpoints', () => {
         })
     })
 
-    describe.only('DELETE /api/reminders/:reminderId', () => {
+    describe('DELETE /api/reminders/:reminderId', () => {
         context('given there are no reminders', () => {
             it('responds with 404 and error message', () => {
                 const reminderId = 1234;
@@ -167,6 +167,50 @@ describe('Reminders endpoints', () => {
                 const reminderId = 2;
                 return supertest(app)
                     .delete(`/api/reminders/${reminderId}`)
+                    .expect(204)
+            })
+        })
+    })
+
+    describe.only('PATCH /api/reminders/:reminderId', () => {
+        context('given no reminders', () => {
+            it('responds with 404 and error message', () => {
+                const reminderId = 1234;
+                return supertest(app)
+                    .patch(`/api/reminders/${reminderId}`)
+                    .expect(404, {
+                        error: { message: `Reminder does not exist`}
+                    })
+            })
+        })
+
+        context('given reminders in db', () => {
+            const testReminders = makeRemindersArray();
+            const testUsers = makeUsersArray();
+
+            beforeEach('insert reminders into table', () => {
+                return db
+                    .into('users')
+                    .insert(testUsers)
+                    .then(() => {
+                        return db
+                            .into('reminders')
+                            .insert(testReminders)
+                    })
+            })
+
+            it('responds with 204 and updates', () => {
+                const reminderId = 1;
+                const updaptedReminder = {
+                    title: 'Updated title',
+                    due_date: '2022-05-31T22:30:00.000Z',
+                    reminder_notes: 'updated reminder notes',
+                    completed: false,
+                    user_id: 1
+                }
+                return supertest(app)
+                    .patch(`/api/reminders/${reminderId}`)
+                    .send(updaptedReminder)
                     .expect(204)
             })
         })
