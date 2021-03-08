@@ -8,6 +8,13 @@ const jsonParser = express.json();
 
 usersRouter
     .route('/')
+    .get((req, res, next) => {
+        UsersService.getAllUsers(
+            req.app.get('db')
+        )
+        .then(user => res.json(user))
+        .catch(next)
+    })
 
 
 module.exports = usersRouter

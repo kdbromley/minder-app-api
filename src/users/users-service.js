@@ -1,12 +1,18 @@
 const UsersService = {
     getAllUsers(knex) {
-        //getAllUsers
+        return knex
+            .select('*')
+            .from('users')
     },
     getUserById(knex, userId) {
-        //getUserById
+        return knex
+            .select('*')
+            .from('users')
+            .where('id', userId)
+            .first()
     },
     insertUser(knex, newUser) {
-        //create new user
+        //
     },
 }
 

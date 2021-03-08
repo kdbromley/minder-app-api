@@ -275,5 +275,28 @@ describe.only('users endpoint', () => {
     before('clean table', () => db.raw('TRUNCATE reminders, users RESTART IDENTITY CASCADE'));
     afterEach('cleanup', () => db.raw('TRUNCATE reminders, users RESTART IDENTITY CASCADE'));
 
+    describe('GET /users', () => {
+        context('no users in db', () => {
+            it('returns 200 and empty array', () => {
+                return supertest(app)
+                    .get('/api/users')
+                    .expect(200, [])
+                })
+        })
+        context('given users in db', () => {
+            const testUsers = makeUsersArray();
+            beforeEach('create user', () => {
+                return db
+                    .into('users')
+                    .insert(testUsers)
+            })
+    
+            it('returns 200 and all users', () => {
+                return supertest(app)
+                    .get('/api/users')
+                    .expect(200, testUsers)
+            })
+        })
+    })
 
 })
