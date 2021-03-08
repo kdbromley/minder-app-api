@@ -80,7 +80,17 @@ remindersRouter
     })
     .patch(jsonParser, (req, res, next) => {
         const { title, due_date, reminder_notes, completed, user_id } = req.body;
-        const updatedReminder = { title, due_date, reminder_notes, completed, user_id }
+        const updatedReminder = { title, due_date, completed }
+        
+    
+        const numberOfValues = Object.values(updatedReminder).filter(Boolean).length;
+        if(numberOfValues === 0) {
+            return res.status(400).json({
+                error: { message: 'Body must contain one of: title, due_date, completed' }
+            })
+        }
+
+        updatedReminder.reminder_notes = reminder_notes;
         
         RemindersService.udpateReminder(
             req.app.get('db'),
