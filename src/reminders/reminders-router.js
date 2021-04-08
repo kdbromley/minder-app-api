@@ -1,7 +1,6 @@
 const path = require('path');
 const express = require('express');
 const RemindersService = require('./reminders-service');
-const { udpateReminder } = require('./reminders-service');
 // npm i xss -- const xss = require('xss');
 
 const remindersRouter = express.Router();
@@ -19,7 +18,7 @@ remindersRouter
         .catch(next)
     })
     .post(jsonParser, (req, res, next) => {
-        const { title, due_date, reminder_notes, completed, user_id } =  req.body;
+        const { title, due_date, reminder_notes, completed, user_id } = req.body;
         const newReminder = {  title, due_date, completed, user_id };
 
         for(const [key, value] of Object.entries(newReminder)) {
@@ -81,7 +80,6 @@ remindersRouter
     .patch(jsonParser, (req, res, next) => {
         const { title, due_date, reminder_notes, completed, user_id } = req.body;
         const updatedReminder = { title, due_date, completed }
-        
     
         const numberOfValues = Object.values(updatedReminder).filter(Boolean).length;
         if(numberOfValues === 0) {
@@ -92,7 +90,7 @@ remindersRouter
 
         updatedReminder.reminder_notes = reminder_notes;
         
-        RemindersService.udpateReminder(
+        RemindersService.updateReminder(
             req.app.get('db'),
             req.params.reminderId,
             updatedReminder

@@ -25,10 +25,10 @@ const RemindersService = {
             .where('id', reminderId)
             .delete()
     },
-    udpateReminder(knex, reminderId, udpatedReminder) {
+    updateReminder(knex, reminderId, updatedReminder) {
         return knex('reminders')
             .where('id', reminderId)
-            .update(udpatedReminder)
+            .update(updatedReminder)
     }
 }
 
