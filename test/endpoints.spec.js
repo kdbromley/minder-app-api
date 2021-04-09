@@ -262,7 +262,7 @@ describe('Reminders endpoints', () => {
 
 })
 
-describe.only('users endpoint', () => {
+describe.skip('users endpoint', () => {
     let db;
 
     db = knex({

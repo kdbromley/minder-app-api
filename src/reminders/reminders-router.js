@@ -1,10 +1,20 @@
 const path = require('path');
 const express = require('express');
 const RemindersService = require('./reminders-service');
-// npm i xss -- const xss = require('xss');
+const xss = require('xss');
 
 const remindersRouter = express.Router();
 const jsonParser = express.json();
+
+
+const serializeReminder = reminder => ({
+    id: reminder.id,
+    title: xss(reminder.title),
+    due_date: (reminder.due_date),
+    reminder_notes: xss(reminder.reminder_notes),
+    completed: reminder.completed,
+    user_id: reminder.user_id
+})
 
 remindersRouter
     .route('/')
@@ -39,7 +49,7 @@ remindersRouter
             res
              .status(201)
              .location(path.posix.join(req.originalUrl, `/${reminder.id}`))
-             .json(reminder)
+             .json(serializeReminder(reminder))
             })
         .catch(next)
     })
@@ -65,7 +75,7 @@ remindersRouter
     .get((req, res, next) => {
         res
          .status(200)
-         .json(res.reminder)
+         .json(serializeReminder(res.reminder))
     })
     .delete((req, res, next) => {
         RemindersService.deleteReminder(
